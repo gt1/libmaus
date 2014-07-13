@@ -12,15 +12,15 @@ Package: libmaus0
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: libmaus is a collection of data structures and algorithms. 
-It contains
-.
+Description: libmaus is a collection of data structures and algorithms
+ It contains
+ .
  - I/O classes (single byte and UTF-8)
  - bitio classes (input, output and various forms of bit level manipulation)
  - text indexing classes (suffix and LCP array, fulltext and minute (FM), ...)
  - BAM sequence alignment files input/output (simple and collating)
-.
-and many lower level support classes.
+ .
+ and many lower level support classes.
 
 Package: libmaus-dev
 Architecture: any
