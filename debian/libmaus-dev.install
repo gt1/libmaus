@@ -1,0 +1,7 @@
+#! /usr/bin/dh-exec
+usr/include/*	usr/include/
+usr/lib/*/libmaus.so	usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*/libmauslsf.so	usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*/libmaus.a	usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*/libmauslsf.a	usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*/pkgconfig/*.pc	usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
