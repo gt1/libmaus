@@ -1,3 +1,11 @@
+libmaus (0.0.146) unstable; urgency=low
+
+  * add SimpleTrie class
+  * improve error message when detecting redirect loop in http(s) 
+  * generalise optical coordinate parsing in ReadEnds (D. Jackson)
+
+ -- German Tischler <gt1@sanger.ac.uk>  Mon, 14 Jul 2014 10:05:32 +0100
+
 libmaus (0.0.143) unstable; urgency=low
 
   * avoid failing the merging state of collation due to too many open files
