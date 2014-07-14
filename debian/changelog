@@ -1,3 +1,9 @@
+libmaus (0.0.147) unstable; urgency=low
+
+  * versioning cleanup 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Mon, 14 Jul 2014 10:20:01 +0100
+
 libmaus (0.0.146) unstable; urgency=low
 
   * add SimpleTrie class
