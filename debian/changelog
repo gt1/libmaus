@@ -1,3 +1,9 @@
+libmaus (0.0.148) unstable; urgency=low
+
+  * add infrastructure for tag splitting in duplicate marking 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Wed, 16 Jul 2014 14:26:41 +0100
+
 libmaus (0.0.147) unstable; urgency=low
 
   * versioning cleanup 
