@@ -1,3 +1,9 @@
+libmaus (0.0.149) unstable; urgency=low
+
+  * extend tag in ReadEnds class to 64 bits 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Fri, 18 Jul 2014 19:55:18 +0100
+
 libmaus (0.0.148) unstable; urgency=low
 
   * add infrastructure for tag splitting in duplicate marking 
