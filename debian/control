@@ -13,12 +13,13 @@ Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: libmaus is a collection of data structures and algorithms
- It contains
+ libmaus contains a collection of data structures and algorithms, many of
+ which have applications in bio-informatics. In particular this includes
  .
- - I/O classes (single byte and UTF-8)
- - bitio classes (input, output and various forms of bit level manipulation)
- - text indexing classes (suffix and LCP array, fulltext and minute (FM), ...)
- - BAM sequence alignment files input/output (simple and collating)
+  - I/O classes (single byte and UTF-8)
+  - bitio classes (input, output and various forms of bit level manipulation)
+  - text indexing classes (suffix and LCP array, fulltext and minute (FM), ...)
+  - BAM sequence alignment files input/output (simple and collating)
  .
  and many lower level support classes.
 
