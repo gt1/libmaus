@@ -29,3 +29,14 @@ Multi-Arch: same
 Section: libdevel
 Depends: ${shlibs:Depends}, ${misc:Depends}, libmaus0 (= ${binary:Version}), pkg-config (>= 0.22), zlib1g-dev (>= 1.2.3), libsnappy-dev (>= 1.0.3), seqan-dev (>= 1.2), libgnutls-dev (>= 2.12.14)
 Description: Development files for libmaus (headers, libraries and pkg-config files)
+ libmaus contains a collection of data structures and algorithms, many of
+ which have applications in bio-informatics. In particular this includes
+ .
+  - I/O classes (single byte and UTF-8)
+  - bitio classes (input, output and various forms of bit level manipulation)
+  - text indexing classes (suffix and LCP array, fulltext and minute (FM), ...)
+  - BAM sequence alignment files input/output (simple and collating)
+ .
+ and many lower level support classes. This package contains the header
+ files and libraries required for developing applications based on libmaus.
+
