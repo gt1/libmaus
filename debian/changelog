@@ -1,3 +1,9 @@
+libmaus (0.0.150-1) unstable; urgency=medium
+
+  * add GNU TLS interface 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Mon, 21 Jul 2014 21:56:10 +0100
+
 libmaus (0.0.149-1) unstable; urgency=low
 
   * extend tag in ReadEnds class to 64 bits 
