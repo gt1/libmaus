@@ -2,7 +2,10 @@ ACLOCAL_AMFLAGS=-I m4
 
 abs_builddir = @abs_builddir@
 
-lib_LTLIBRARIES = libmaus.la libmauslsf.la libmaus_kmlocal_mod.la libmaus_consensus_mod.la libmaus_scram_mod.la
+lib_LTLIBRARIES = libmaus.la libmauslsf.la 
+
+libmaus_modules_LTLIBRARIES = libmaus_kmlocal_mod.la libmaus_consensus_mod.la libmaus_scram_mod.la
+libmaus_modulesdir = $(libdir)/libmaus/$(PACKAGE_VERSION)
 
 libmaus_la_SOURCES = libmaus/StaticInitialization.cpp \
 	libmaus/autoarray/AutoArray.cpp \
@@ -118,13 +121,14 @@ libmaus_la_SOURCES = libmaus/StaticInitialization.cpp \
 	libmaus/bambam/BamHeader.cpp \
 	libmaus/bambam/GeneFlatFile.cpp \
 	libmaus/bambam/GeneFlatFileEntry.cpp \
-	libmaus/trie/SimpleTrie.cpp
+	libmaus/trie/SimpleTrie.cpp \
+	libmaus/network/GnuTLSInit.cpp
 
 noinst_HEADERS = libmaus/lz/lz4.h
 
-libmaus_la_CPPFLAGS = @LIBMAUSCPPFLAGS@ @SNAPPYCPPFLAGS@ @ZLIBCPPFLAGS@ @WARNCPPFLAGS@ @LIBCURLCPPFLAGS@ @OPENSSLCPPFLAGS@ @IGZIPCPPFLAGS@
-libmaus_la_LDFLAGS = @LIBMAUSLDFLAGS@ @SNAPPYLDFLAGS@ -version-info ${LIBRARY_VERSION} @LIBMAUSSTATIC@ @IGZIPLDFLAGS@
-libmaus_la_LIBADD = @DLLIB@ @SNAPPYLIBS@ @ZLIBLIBS@ @LIBCURLLIBS@ @OPENSSLLIBS@ @IGZIPLIBS@
+libmaus_la_CPPFLAGS = @LIBMAUSCPPFLAGS@ @SNAPPYCPPFLAGS@ @ZLIBCPPFLAGS@ @WARNCPPFLAGS@ @LIBCURLCPPFLAGS@ @OPENSSLCPPFLAGS@ @GNUTLSCPPFLAGS@ @IGZIPCPPFLAGS@
+libmaus_la_LDFLAGS = @LIBMAUSLDFLAGS@ @SNAPPYLDFLAGS@ -version-info ${LIBRARY_VERSION} @LIBMAUSSTATIC@ @IGZIPLDFLAGS@ @GNUTLSLDFLAGS@
+libmaus_la_LIBADD = @DLLIB@ @SNAPPYLIBS@ @ZLIBLIBS@ @LIBCURLLIBS@ @OPENSSLLIBS@ @IGZIPLIBS@ @GNUTLSLIBS@
 
 libmauslsf_la_LDFLAGS = @LSFLDFLAGS@ @LIBMAUSLDFLAGS@ -version-info ${LIBRARY_VERSION} @LIBMAUSSTATIC@
 libmauslsf_la_SOURCES = libmaus/lsf/LSFProcess.cpp
@@ -133,20 +137,20 @@ libmauslsf_la_LIBADD = libmaus.la ${LSFLIBS}
 
 libmaus_kmlocal_mod_la_CPPFLAGS = @KMLOCALCPPFLAGS@ @LIBMAUSCPPFLAGS@ ${AM_CPPFLAGS} @WARNCPPFLAGS@
 libmaus_kmlocal_mod_la_CXXFLAGS = @KMLOCALCXXFLAGS@ @LIBMAUSCXXFLAGS@ ${AM_CXXFLAGS} -fPIC
-libmaus_kmlocal_mod_la_LDFLAGS  = @KMLOCALLDFLAGS@  @LIBMAUSLDFLAGS@                 -module -avoid-version -shared -export-dynamic ${AM_LDFLAGS}
+libmaus_kmlocal_mod_la_LDFLAGS  = @KMLOCALLDFLAGS@  @LIBMAUSLDFLAGS@                 -module  -shared -export-dynamic ${AM_LDFLAGS} -avoid-version
 libmaus_kmlocal_mod_la_LIBADD   = @KMLOCALLIBS@     @LIBMAUSLIBS@
 libmaus_kmlocal_mod_la_SOURCES  = libmaus/quantisation/KMLocalInterface.cpp
 
 libmaus_consensus_mod_la_CPPFLAGS = @SEQANCPPFLAGS@                 @LIBMAUSCPPFLAGS@ ${AM_CPPFLAGS} @WARNCPPFLAGS@
 libmaus_consensus_mod_la_CXXFLAGS = @SEQANCXXFLAGS@                 @LIBMAUSCXXFLAGS@ ${AM_CXXFLAGS} -fPIC
-libmaus_consensus_mod_la_LDFLAGS  = @SEQANLDFLAGS@  @SEQANLIBS@     @LIBMAUSLDFLAGS@  @LIBMAUSLIBS@     -module -avoid-version -shared -export-dynamic ${AM_LDFLAGS}
+libmaus_consensus_mod_la_LDFLAGS  = @SEQANLDFLAGS@  @SEQANLIBS@     @LIBMAUSLDFLAGS@  @LIBMAUSLIBS@     -module  -shared -export-dynamic ${AM_LDFLAGS} -avoid-version
 libmaus_consensus_mod_la_LIBADD   = @SEQANLIBS@ @LIBMAUSLIBS@
 libmaus_consensus_mod_la_SOURCES  = libmaus/consensus/ConsensusBase.cpp libmaus/consensus/ScoringMatrix.cpp \
 	libmaus/fastx/Phred.cpp
 
 libmaus_scram_mod_la_CPPFLAGS = @IOLIBCPPFLAGS@ @LIBMAUSCPPFLAGS@ ${AM_CPPFLAGS} @WARNCPPFLAGS@
 libmaus_scram_mod_la_CXXFLAGS = @LIBMAUSCXXFLAGS@ ${AM_CXXFLAGS} -fPIC
-libmaus_scram_mod_la_LDFLAGS  = @IOLIBLDFLAGS@  @IOLIBLIBS@     @LIBMAUSLDFLAGS@  @LIBMAUSLIBS@     -module -avoid-version -shared -export-dynamic ${AM_LDFLAGS}
+libmaus_scram_mod_la_LDFLAGS  = @IOLIBLDFLAGS@  @IOLIBLIBS@     @LIBMAUSLDFLAGS@  @LIBMAUSLIBS@     -module  -shared -export-dynamic ${AM_LDFLAGS} -avoid-version
 libmaus_scram_mod_la_LIBADD   = @IOLIBLIBS@ @LIBMAUSLIBS@
 libmaus_scram_mod_la_SOURCES  = libmaus/bambam/Scram.c
 
@@ -1015,7 +1019,9 @@ libmausnetwork_include_HEADERS=\
 	libmaus/network/FtpSocketInputStream.hpp \
 	libmaus/network/FileUrl.hpp \
 	libmaus/network/UrlInputStreamBufferWrapper.hpp \
-	libmaus/network/UrlInputStream.hpp
+	libmaus/network/UrlInputStream.hpp \
+	libmaus/network/GnuTLSInit.hpp \
+	libmaus/network/GnuTLSSocket.hpp
 
 libmaussv_includedir=$(includedir)/libmaus/sv
 libmaussv_include_HEADERS=\
@@ -1196,7 +1202,8 @@ noinst_PROGRAMS = \
 	testlowmembamheaderparser \
 	testgeneflatfile \
 	testurlinputstream \
-	testsimpletrie
+	testsimpletrie \
+	testgnutls
 
 testgunzip_SOURCES = test/testgunzip.cpp
 testgunzip_LDADD = libmaus.la
@@ -1512,18 +1519,18 @@ testfastablockrecode_LDADD = libmaus.la
 
 testhttp_SOURCES = test/testhttp.cpp
 testhttp_LDADD = libmaus.la
-testhttp_CPPFLAGS = @OPENSSLCPPFLAGS@ @WARNCPPFLAGS@
-testhttp_LDFLAGS = @OPENSSLLIBS@
+testhttp_CPPFLAGS = @OPENSSLCPPFLAGS@ @GNUTLSCPPFLAGS@ @WARNCPPFLAGS@
+testhttp_LDFLAGS = @OPENSSLLIBS@ @GNUTLSLIBS@
 
 testftp_SOURCES = test/testftp.cpp
 testftp_LDADD = libmaus.la
-testftp_CPPFLAGS = @OPENSSLCPPFLAGS@ @WARNCPPFLAGS@
-testftp_LDFLAGS = @OPENSSLLIBS@
+testftp_CPPFLAGS = @OPENSSLCPPFLAGS@ @GNUTLSCPPFLAGS@ @WARNCPPFLAGS@
+testftp_LDFLAGS = @OPENSSLLIBS@ @GNUTLSLIBS@
 
 testurlinputstream_SOURCES = test/testurlinputstream.cpp
 testurlinputstream_LDADD = libmaus.la
-testurlinputstream_CPPFLAGS = @OPENSSLCPPFLAGS@ @WARNCPPFLAGS@
-testurlinputstream_LDFLAGS = @OPENSSLLIBS@
+testurlinputstream_CPPFLAGS = @OPENSSLCPPFLAGS@ @GNUTLSCPPFLAGS@ @WARNCPPFLAGS@
+testurlinputstream_LDFLAGS = @OPENSSLLIBS@ @GNUTLSLIBS@
 
 testrlhist_SOURCES = test/testrlhist.cpp
 testrlhist_LDADD = libmaus.la
@@ -1550,3 +1557,8 @@ testgeneflatfile_SOURCES = test/testgeneflatfile.cpp
 testgeneflatfile_LDADD = libmaus.la
 testgeneflatfile_CPPFLAGS = ${AM_CPPFLAGS}
 testgeneflatfile_LDFLAGS = ${AM_LDFLAGS}
+
+testgnutls_SOURCES = test/testgnutls.cpp
+testgnutls_LDADD = libmaus.la
+testgnutls_CPPFLAGS = ${AM_CPPFLAGS} @GNUTLSCPPFLAGS@
+testgnutls_LDFLAGS = ${AM_LDFLAGS} @GNUTLSLIBS@
