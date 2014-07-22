@@ -1,5 +1,5 @@
-AC_INIT(libmaus,0.0.149,[gt1@sanger.ac.uk],[libmaus],[http://www.sanger.ac.uk])
-LIBRARY_VERSION=0:149:0
+AC_INIT(libmaus,0.0.150,[gt1@sanger.ac.uk],[libmaus],[http://www.sanger.ac.uk])
+LIBRARY_VERSION=0:150:0
 AC_MSG_NOTICE([Configuring for source in directory ${srcdir}])
 AC_CANONICAL_SYSTEM
 AC_PROG_LIBTOOL
@@ -1742,7 +1742,7 @@ AC_ARG_WITH([io_lib],
             [with_io_lib=${withval}],
             [with_io_lib=no])
 
-if [[ "${have_dynamic_loading}" = "yes" -a "${getpagesize}" = "yes" -a "${posixmemalign}" = "yes" -a "${with_io_lib}" != "no" ]] ; then
+if [[ "${have_dynamic_loading}" = "yes" -a "${getpagesize}" = "yes" -a "${posixmemalign}" = "yes" -a "${with_io_lib}" != "no" -a "${sharedlibmaus}" != "no" ]] ; then
 	if [[ \( ! -z "${with_io_lib}" \) -a \( "${with_io_lib}" != "yes" \) ]] ; then
 		IOLIBCPPFLAGS="-I${with_io_lib}/include"
 		IOLIBLDFLAGS="-L${with_io_lib}/lib"
@@ -1982,8 +1982,65 @@ ERR_load_BIO_strings();
 			OPENSSLCPPFLAGS="${openssl_CFLAGS}"
 		fi
 	fi
+fi
+
+AC_ARG_WITH([gnutls],
+	[AS_HELP_STRING([--with-gnutls@<:@=PATH@:>@], [path to installed gnutls library @<:@default=no@:>@])],
+	[with_gnutls=${withval}],
+	[with_gnutls=no])
+
+GNUTLS=
+if test "${with_gnutls}" != "no" ; then
+
+	if test ! -z "${with_gnutls}" ; then
+		PKGCONFIGPATHSAVE="${PKG_CONFIG_PATH}"
+		if test -z "${PKG_CONFIG_PATH}" ; then
+			export PKG_CONFIG_PATH="${with_gnutls}/lib/pkgconfig"
+		else
+			export PKG_CONFIG_PATH="${with_gnutls}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+		fi
+	fi
+
+	PKG_CHECK_MODULES([gnutls],[gnutls >= 2.12.14],[gnutlspkg=yes],[gnutlspkg=no])
+
+	if test ! -z "${with_gnutls}" ; then
+		if test ! -z "${PKGCONFIGPATHSAVE}" ; then
+			export PKG_CONFIG_PATH="${PKGCONFIGPATHSAVE}"
+		fi
+	fi
+
+	GNUTLS=
+	if [[ "${gnutlspkg}" = "yes" ]] ; then
+		AC_LANG_PUSH([C++])
+		LIBSSAVE="${LIBS}"
+		LIBS="${LIBS} ${gnutls_LIBS}"
+		CPPFLAGSSAVE="${CPPFLAGS}"
+		
+		CPPFLAGS="${CPPFLAGS} ${gnutls_CFLAGS}"
+		AC_MSG_CHECKING([whether we can compile a gnutls program])
+		AC_TRY_LINK([#include <gnutls/gnutls.h>
+#include <gnutls/x509.h>		
+	],[;],[gnutls=yes],[gnutls=no])
+		AC_MSG_RESULT([${gnutls}])
+		LIBS="${LIBSSAVE}"
+		CPPFLAGS="${CPPFLAGSSAVE}"
+		
+		AC_LANG_POP
+
+		if [[ "$gnutls" = "no" ]] ; then
+			AC_MSG_ERROR([Failed to compile gnutls program.]);
+		else
+			GNUTLS="#define LIBMAUS_HAVE_GNUTLS"
+			GNUTLSLDFLAGS=""
+			GNUTLSLIBS="${gnutls_LIBS}"
+			GNUTLSCPPFLAGS="${gnutls_CFLAGS}"
+		fi
+	else
+		AC_MSG_ERROR([GNU TLS not found in required version])
+	fi
 
 fi
+
 
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADER(libkern/OSAtomic.h, [libkern_osatomic_h=yes], [libkern_osatomic_h=no])
@@ -2165,4 +2222,8 @@ AC_SUBST([LIBMAUS_HAVE_IGZIP])
 AC_SUBST([IGZIPCPPFLAGS])
 AC_SUBST([IGZIPLDFLAGS])
 AC_SUBST([IGZIPLIBS])
+AC_SUBST([GNUTLSLIBS])
+AC_SUBST([GNUTLSCPPFLAGS])
+AC_SUBST([GNUTLSLDFLAGS])
+AC_SUBST([GNUTLS])
 AC_OUTPUT(Makefile src/Makefile libmaus.pc libmauslsf.pc ubuntu.sh src/libmaus/LibMausConfig.hpp)
