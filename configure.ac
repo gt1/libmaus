@@ -1,5 +1,5 @@
-AC_INIT(libmaus,0.0.151,[gt1@sanger.ac.uk],[libmaus],[http://www.sanger.ac.uk])
-LIBRARY_VERSION=0:151:0
+AC_INIT(libmaus,0.0.152,[gt1@sanger.ac.uk],[libmaus],[http://www.sanger.ac.uk])
+LIBRARY_VERSION=0:152:0
 AC_MSG_NOTICE([Configuring for source in directory ${srcdir}])
 AC_CANONICAL_SYSTEM
 AC_PROG_LIBTOOL
@@ -1990,6 +1990,7 @@ AC_ARG_WITH([gnutls],
 	[with_gnutls=no])
 
 GNUTLS=
+GNUTLSREQ=
 if test "${with_gnutls}" != "no" ; then
 
 	if test ! -z "${with_gnutls}" ; then
@@ -2034,6 +2035,7 @@ if test "${with_gnutls}" != "no" ; then
 			GNUTLSLDFLAGS=""
 			GNUTLSLIBS="${gnutls_LIBS}"
 			GNUTLSCPPFLAGS="${gnutls_CFLAGS}"
+			GNUTLSREQ="gnutls"
 		fi
 	else
 		AC_MSG_ERROR([GNU TLS not found in required version])
@@ -2226,4 +2228,5 @@ AC_SUBST([GNUTLSLIBS])
 AC_SUBST([GNUTLSCPPFLAGS])
 AC_SUBST([GNUTLSLDFLAGS])
 AC_SUBST([GNUTLS])
+AC_SUBST([GNUTLSREQ])
 AC_OUTPUT(Makefile src/Makefile libmaus.pc libmauslsf.pc ubuntu.sh src/libmaus/LibMausConfig.hpp)
