@@ -1,3 +1,9 @@
+libmaus (0.0.152-1) unstable; urgency=low
+
+  * add support for two output files in duplicate removal
+
+ -- German Tischler <gt1@sanger.ac.uk>  Wed, 23 Jul 2014 09:13:49 +0100
+
 libmaus (0.0.151-1) unstable; urgency=low
 
   * refactor GNU TLS interface classes 
