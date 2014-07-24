@@ -12,6 +12,8 @@ Package: libmaus0
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: ${self}:other (<< ${binary:Version})
+Breaks: ${self}:other (!= ${binary:Version})
 Description: libmaus is a collection of data structures and algorithms
  libmaus contains a collection of data structures and algorithms, many of
  which have applications in bio-informatics. In particular this includes
