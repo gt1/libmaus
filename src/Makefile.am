@@ -123,7 +123,8 @@ libmaus_la_SOURCES = libmaus/StaticInitialization.cpp \
 	libmaus/bambam/GeneFlatFileEntry.cpp \
 	libmaus/trie/SimpleTrie.cpp \
 	libmaus/network/GnuTLSInit.cpp \
-	libmaus/network/GnuTLSSocket.cpp
+	libmaus/network/GnuTLSSocket.cpp \
+	libmaus/bambam/BamStreamingMarkDuplicatesSupport.cpp
 
 noinst_HEADERS = libmaus/lz/lz4.h
 
@@ -373,7 +374,9 @@ libmausbambam_include_HEADERS = libmaus/bambam/DecoderBase.hpp libmaus/bambam/Ch
 	libmaus/bambam/ChromosomeVectorMerge.hpp \
 	libmaus/bambam/BamHeaderLowMem.hpp \
 	libmaus/bambam/GeneFlatFile.hpp \
-	libmaus/bambam/GeneFlatFileEntry.hpp
+	libmaus/bambam/GeneFlatFileEntry.hpp \
+	libmaus/bambam/BamStreamingMarkDuplicatesSupport.hpp \
+	libmaus/bambam/BamStreamingMarkDuplicates.hpp
 
 libmausarithmetic_includedir=$(includedir)/libmaus/arithmetic/
 libmausarithmetic_include_HEADERS =\
@@ -640,7 +643,14 @@ libmausutil_include_HEADERS=\
 	libmaus/util/StringMapCompare.hpp \
 	libmaus/util/FreeList.hpp \
 	libmaus/util/ToUpperTable.hpp \
-	libmaus/util/BorderArray.hpp
+	libmaus/util/BorderArray.hpp \
+	libmaus/util/SimpleHashMapConstants.hpp \
+	libmaus/util/SimpleHashMapKeyPrint.hpp \
+	libmaus/util/GrowingFreeList.hpp \
+	libmaus/util/SimpleHashMapHashCompute.hpp \
+	libmaus/util/SimpleHashMapInsDel.hpp \
+	libmaus/util/SimpleHashMapNumberCast.hpp \
+	libmaus/util/SimpleHashSetInsDel.hpp
 
 libmausuint_includedir=$(includedir)/libmaus/uint
 libmausuint_include_HEADERS=\
@@ -885,8 +895,10 @@ libmausfm_include_HEADERS=\
 	libmaus/fm/MausFmToBwaConversion.hpp \
 	libmaus/fm/BidirectionalIndexInterval.hpp \
 	libmaus/fm/BidirectionalIndexIntervalSymbol.hpp \
-	libmaus/fm/DictionaryInfo.hpp  libmaus/fm/DictionaryInfoImpCompactHuffmanWaveletTree.hpp \
-	libmaus/fm/BidirectionalDnaIndexTemplate.hpp
+	libmaus/fm/DictionaryInfo.hpp \
+	libmaus/fm/DictionaryInfoImpCompactHuffmanWaveletTree.hpp \
+	libmaus/fm/BidirectionalDnaIndexTemplate.hpp \
+	libmaus/fm/KmerCache.hpp
 	
 libmauslcp_includedir=$(includedir)/libmaus/lcp
 libmauslcp_include_HEADERS=\
@@ -932,7 +944,10 @@ libmausbtree_include_HEADERS=\
 
 libmauslru_includedir=$(includedir)/libmaus/lru
 libmauslru_include_HEADERS=\
-	libmaus/lru/LRU.hpp
+	libmaus/lru/LRU.hpp \
+	libmaus/lru/SparseLRU.hpp \
+	libmaus/lru/SparseLRUFileBunch.hpp \
+	libmaus/lru/FileBunchLRU.hpp
 
 libmausclustering_includedir=$(includedir)/libmaus/clustering
 libmausclustering_include_HEADERS=\
@@ -1204,10 +1219,14 @@ noinst_PROGRAMS = \
 	testgeneflatfile \
 	testurlinputstream \
 	testsimpletrie \
-	testgnutls
+	testgnutls \
+	testlru
 
 testgunzip_SOURCES = test/testgunzip.cpp
 testgunzip_LDADD = libmaus.la
+
+testlru_SOURCES = test/testlru.cpp
+testlru_LDADD = libmaus.la
 
 testsimpletrie_SOURCES = test/testsimpletrie.cpp
 testsimpletrie_LDADD = libmaus.la
