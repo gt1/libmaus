@@ -585,7 +585,7 @@ namespace libmaus
 			 * @return contents of auxiliary field identified by tag as number
 			 **/
 			template<typename N>
-			N getAuxAsNumber(char const * const tag)
+			N getAuxAsNumber(char const * const tag) const
 			{			
 				return ::libmaus::bambam::BamAlignmentDecoderBase::getAuxAsNumber<N>(D.get(),blocksize,tag);
 			}
@@ -598,7 +598,7 @@ namespace libmaus
 			 * @return true if field is present and can be extracted
 			 **/
 			template<typename N>
-			bool getAuxAsNumber(char const * const tag, N & num)
+			bool getAuxAsNumber(char const * const tag, N & num) const
 			{			
 				return ::libmaus::bambam::BamAlignmentDecoderBase::getAuxAsNumber<N>(D.get(),blocksize,tag,num);
 			}
@@ -1863,6 +1863,44 @@ namespace libmaus
 					
 					unmapped.putAuxNumber("MQ", 'i', mapped.getMapQ());
 				}
+			}
+
+			/**
+			 * add quality score of mate as aux field
+			 */
+			static void addMateBaseScore(
+				libmaus::bambam::BamAlignment & rec1, 
+				libmaus::bambam::BamAlignment & rec2,
+				libmaus::bambam::BamAuxFilterVector const & MSfilter
+				)
+			{
+				uint64_t const score1 = rec1.getScore();
+				uint64_t const score2 = rec2.getScore();
+
+				rec1.filterOutAux(MSfilter);
+				rec2.filterOutAux(MSfilter);
+				
+				rec1.putAuxNumber("MS",'i',score2);
+				rec2.putAuxNumber("MS",'i',score1);								
+			}
+
+			/**
+			 * add mapping coordinate of mate as aux field
+			 */
+			static void addMateCoordinate(
+				libmaus::bambam::BamAlignment & rec1, 
+				libmaus::bambam::BamAlignment & rec2,
+				libmaus::bambam::BamAuxFilterVector const & MCfilter
+				)
+			{
+				uint64_t const coord1 = rec1.getCoordinate();
+				uint64_t const coord2 = rec2.getCoordinate();
+
+				rec1.filterOutAux(MCfilter);
+				rec2.filterOutAux(MCfilter);
+				
+				rec1.putAuxNumber("MC",'i',coord2);
+				rec2.putAuxNumber("MC",'i',coord1);								
 			}
 
 			/**
