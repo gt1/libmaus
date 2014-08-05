@@ -97,6 +97,7 @@ namespace libmaus
 			//! shift to make signed numbers non-negative
 			static int64_t const signshift = (-(1l<<29))+1;
 
+			public:
 			/**
 			 * shift n to make it non-negative
 			 *
@@ -118,7 +119,7 @@ namespace libmaus
 			{
 				return static_cast<int32_t>(static_cast<int64_t>(n) + signshift);
 			}
-			public:
+
 			/**
 			 * @return true if object is paired (i.e. read2Sequence != 0)
 			 **/
@@ -289,6 +290,24 @@ namespace libmaus
 				return ! (*this == o);
 			}
 
+			/**
+			 * parse optical information (if any) into tile, x and y
+			 **/
+			static bool parseOptical(uint8_t const * readname, uint16_t & tile, uint32_t & x, uint32_t & y)
+			{
+				size_t const l = strlen(reinterpret_cast<char const *>(readname));
+				
+				if ( parseReadNameValid(readname,readname+l) )
+				{
+					parseReadNameTile(readname,readname+l,tile,x,y);
+					return tile != 0;
+				}
+				else
+				{
+					return false;
+				}
+			}
+
 			private:
 			/**
 			 * determine if readname contains optical parameters
@@ -329,6 +348,7 @@ namespace libmaus
 						*(psem++) = c+1;
 				
 				uint8_t const * t = sem[2];
+				RE.tile = 0;
 				while ( D[*t] )
 				{
 					RE.tile *= 10;
@@ -337,6 +357,7 @@ namespace libmaus
 				RE.tile += 1;
 
 				t = sem[1];
+				RE.x = 0;
 				while ( D[*t] )
 				{
 					RE.x *= 10;
@@ -344,10 +365,59 @@ namespace libmaus
 				}
 
 				t = sem[0];
+				RE.y = 0;
 				while ( D[*t] )
 				{
 					RE.y *= 10;
 					RE.y += *(t++)-'0';
+				}			
+			}
+
+			/**
+			 * parse optical parameters from read name
+			 *
+			 * assumes tile, x and y are separated by the last 2 ":" in the read name
+			 *
+			 * @param readname name start pointer
+			 * @param readnamee name end pointer
+			 * @param RE ReadEndsBase object to be filled
+			 **/
+			static void parseReadNameTile(
+				uint8_t const * readname, 
+				uint8_t const * readnamee, 
+				uint16_t & tile,
+				uint32_t & x,
+				uint32_t & y
+			)
+			{
+				uint8_t const * sem[4];
+				sem[2] = readname;
+				uint8_t const ** psem = &sem[0];
+				uint8_t const * c = readnamee;
+				for ( --c; c >= readname; --c )
+					if ( *c == ':' )
+						*(psem++) = c+1;
+				
+				uint8_t const * t = sem[2];
+				while ( D[*t] )
+				{
+					tile *= 10;
+					tile += *(t++)-'0';
+				}
+				tile += 1;
+
+				t = sem[1];
+				while ( D[*t] )
+				{
+					x *= 10;
+					x += *(t++)-'0';
+				}
+
+				t = sem[0];
+				while ( D[*t] )
+				{
+					y *= 10;
+					y += *(t++)-'0';
 				}			
 			}
 			
@@ -368,6 +438,7 @@ namespace libmaus
 
 				uint8_t const * const readname = reinterpret_cast<uint8_t const *>(p.getName());
 				uint8_t const * const readnamee = readname + (p.getLReadName()-1);
+				
 				// parse tile, x, y
 				if ( parseReadNameValid(readname,readnamee) )
 					parseReadNameTile(readname,readnamee,RE);			
@@ -447,7 +518,7 @@ namespace libmaus
 								
 				RE.readGroup = rg + 1;
 				RE.libraryId = header.getLibraryId(rg);
-				RE.tagId = rtagId;
+				RE.tagId = rtagId;				
 			}
 			
 			#define READENDSBASECOMPACT
@@ -478,8 +549,8 @@ namespace libmaus
 				
 				this->tile = ::libmaus::util::UTF8::decodeUTF8Unchecked(G);
 
-				this->x = ::libmaus::util::NumberSerialisation::deserialiseNumber(G,2);
-				this->y = ::libmaus::util::NumberSerialisation::deserialiseNumber(G,2);
+				this->x = ::libmaus::util::NumberSerialisation::deserialiseNumber(G,4);
+				this->y = ::libmaus::util::NumberSerialisation::deserialiseNumber(G,4);
 				#else
 				G.read(reinterpret_cast<char *>(this),sizeof(*this));
 				#endif
@@ -513,8 +584,8 @@ namespace libmaus
 				
 				::libmaus::util::UTF8::encodeUTF8(this->tile,P);
 
-				::libmaus::util::NumberSerialisation::serialiseNumber(P,this->x,2);
-				::libmaus::util::NumberSerialisation::serialiseNumber(P,this->y,2);					
+				::libmaus::util::NumberSerialisation::serialiseNumber(P,this->x,4);
+				::libmaus::util::NumberSerialisation::serialiseNumber(P,this->y,4);					
 				#else
 				P.write(reinterpret_cast<char const *>(this),sizeof(*this));				
 				#endif
