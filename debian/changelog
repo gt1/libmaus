@@ -1,3 +1,9 @@
+libmaus (0.0.155-1) unstable; urgency=medium
+
+  * New upstream version 0.0.155
+
+ -- German Tischler <gt1@sanger.ac.uk>  Sun, 10 Aug 2014 21:28:35 +0100
+
 libmaus (0.0.154-1) unstable; urgency=low
 
   * initial debian packaging files import
