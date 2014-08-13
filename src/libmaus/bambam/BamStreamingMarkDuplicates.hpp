@@ -22,6 +22,8 @@
 #include <libmaus/bambam/BamBlockWriterBase.hpp>
 #include <libmaus/bambam/BamStreamingMarkDuplicatesSupport.hpp>
 #include <libmaus/bambam/DuplicationMetrics.hpp>
+#include <libmaus/fastx/FastATwoBitTable.hpp>
+#include <libmaus/trie/SimpleTrie.hpp>
 #include <libmaus/util/SimpleHashMapInsDel.hpp>
 #include <libmaus/util/SimpleHashSetInsDel.hpp>
 #include <libmaus/util/TempFileRemovalContainer.hpp>
@@ -30,7 +32,7 @@ namespace libmaus
 {
 	namespace bambam
 	{
-		struct BamStreamingMarkDuplicates : public libmaus::bambam::BamStreamingMarkDuplicatesSupport
+		struct BamStreamingMarkDuplicates : public libmaus::bambam::BamStreamingMarkDuplicatesSupport, public libmaus::bambam::BamBlockWriterBase
 		{
 			static int getDefaultMaxReadLen() { return 300; }
 			static int getDefaultOptMinPixelDif() { return 100; }
@@ -134,7 +136,30 @@ namespace libmaus
 			double const hashloadfactor;
 			int64_t prevcheckrefid;
 			int64_t prevcheckpos;
+			
+			libmaus::bambam::BamAlignment tmpalgn;
 
+			enum tag_type_enum
+			{
+				tag_type_none,
+				tag_type_string,
+				tag_type_nucleotide
+			};
+			
+			bool const havetag;
+			std::string const tag;
+			libmaus::trie::SimpleTrie::unique_ptr_type Ptagtrie;
+
+			bool const havenucltag;
+			std::string const nucltag;
+
+			tag_type_enum tag_type;
+
+			char const * ctag;
+			char const * cnucltag;
+
+			libmaus::autoarray::AutoArray<char> tagbuffer;
+			libmaus::fastx::FastATwoBitTable const FATBT;
 
 			BamStreamingMarkDuplicates(
 				libmaus::util::ArgInfo const & arginfo, 
@@ -162,11 +187,51 @@ namespace libmaus
 			  metrics(),
 			  hashloadfactor(.8),
 			  prevcheckrefid(std::numeric_limits<int64_t>::min()),
-			  prevcheckpos(std::numeric_limits<int64_t>::min())
+			  prevcheckpos(std::numeric_limits<int64_t>::min()),
+			  havetag(arginfo.hasArg("tag")),
+			  tag(arginfo.getUnparsedValue("tag","no tag")),
+			  Ptagtrie(havetag ? new libmaus::trie::SimpleTrie : 0),
+			  havenucltag(arginfo.hasArg("nucltag")),
+			  nucltag(arginfo.getUnparsedValue("nucltag","no tag")),
+			  tag_type(havetag ? tag_type_string : (havenucltag ? tag_type_nucleotide : tag_type_none)),
+			  ctag(havetag ? tag.c_str() : 0),
+			  cnucltag(havenucltag ? nucltag.c_str() : 0)
 			{
 				libmaus::util::TempFileRemovalContainer::addTempFile(optfn);
+
+				// tag field
+				if ( havetag && (tag.size() != 2 || (!isalpha(tag[0])) || (!isalnum(tag[1])) ) )
+				{
+					::libmaus::exception::LibMausException se;
+					se.getStream() << "tag " << tag << " is invalid" << std::endl;
+					se.finish();
+					throw se;			
+				}
+	
+				if ( havetag )
+				{
+					// allocate tag id 0 for empty tag
+					uint8_t const * p = 0;
+					Ptagtrie->insert(p,p);
+				}
+
+				if ( havenucltag && (nucltag.size() != 2 || (!isalpha(nucltag[0])) || (!isalnum(nucltag[1])) ) )
+				{
+					::libmaus::exception::LibMausException se;
+					se.getStream() << "nucltag " << tag << " is invalid" << std::endl;
+					se.finish();
+					throw se;			
+				}
+	
+				if ( havetag && havenucltag )
+				{
+					::libmaus::exception::LibMausException se;
+					se.getStream() << "tag and nucltag are mutually exclusive" << std::endl;
+					se.finish();
+					throw se;					
+				}
 			}
-			
+
 			void addAlignment(libmaus::bambam::BamAlignment & algn)
 			{
 				int64_t const thisref = algn.getRefID();
@@ -210,12 +275,104 @@ namespace libmaus
 				else if ( (!algn.isPaired()) || algn.isMateUnmap() )
 					++met.unpaired;
 
+				uint64_t tagid = 0;
+
+				// compute tagid (if any)
+				switch ( tag_type )
+				{
+					case tag_type_string:
+					{
+						// length of tags for read1 and read2
+						uint64_t l1 = 0, l2 = 0;
+						// tags
+						char const * tag1 = 0;
+						char const * tag2 = 0;
+						// 
+						bool const is1 = (!algn.isPaired()) || algn.isRead1();
+						
+						assert ( ctag );
+						tag1 = is1  ? algn.getAuxString(ctag) : algn.getAuxString("MT");
+						l1 = tag1 ? strlen(tag1) : 0;
+
+						if ( algn.isPaired() )
+						{
+							tag2 = is1  ? algn.getAuxString("MT") : algn.getAuxString(ctag);
+							l2 = tag2 ? strlen(tag2) : 0;
+						}
+						
+						// length of concatenated tag
+						uint64_t const taglen = l1 + l2 + 2;
+						// expand buffer if necessary
+						if ( taglen > tagbuffer.size() )
+							tagbuffer = libmaus::autoarray::AutoArray<char>(taglen,false);
+
+						// concatenate tags
+						char * outptr = tagbuffer.begin();
+
+						memcpy(outptr,tag1,l1);
+						outptr += l1;
+						*(outptr++) = 0;
+
+						memcpy(outptr,tag2,l2);
+						outptr += l2;
+						*(outptr++) = 0;
+
+						assert ( outptr - tagbuffer.begin() == static_cast<ptrdiff_t>(taglen) );
+
+						// look up tag id			
+						tagid = Ptagtrie->insert(
+							tagbuffer.begin(),
+							outptr
+						);
+
+						break;
+					}
+					case tag_type_nucleotide:
+					{
+						assert ( cnucltag );
+
+						// tags
+						char const * tag1 = 0;
+						char const * tag2 = 0;
+						
+						if ( algn.isPaired() )
+						{
+							if ( algn.isRead1() )
+							{
+								tag1 = algn.getAuxString(cnucltag);						
+								tag2 = algn.getAuxString("MT");
+							}
+							else
+							{
+								tag2 = algn.getAuxString(cnucltag);						
+								tag1 = algn.getAuxString("MT");							
+							}
+						}
+						else
+						{
+							tag1 = algn.getAuxString(cnucltag);
+						}						
+
+						tagid = (FATBT(tag1) << 32) | FATBT(tag2);
+						
+						break;
+					}
+					default:
+					{
+						tagid = 0;
+						break;
+					}
+				}
+
 				if ( 
 					// supplementary alignment
 					algn.isSupplementary() 
 					|| 
 					// secondary alignment
 					algn.isSecondary() 
+					||
+					// failed quality control
+					algn.isQCFail()
 					||
 					// single, unmapped
 					((!algn.isPaired()) && (!algn.isMapped()))
@@ -251,13 +408,13 @@ namespace libmaus
 					 * - tag
 					 * - mate tag
 					 */
-					PairHashKeyType HK(algn,header);
+					PairHashKeyType HK(algn,header,tagid);
 
 					if ( algn.isRead1() )
 						met.readpairsexamined++;
 
 					// pair fragment for marking single mappings on same coordinate as duplicates
-					FragmentHashKeyType HK1(algn,header);
+					FragmentHashKeyType HK1(algn,header,false /* use mate */,tagid);
 					if ( !SHpairfragments.contains(HK1) )
 					{
 						SHpairfragments.insertExtend(HK1,hashloadfactor);
@@ -334,7 +491,7 @@ namespace libmaus
 				// single end or pair with one end mapping only
 				else
 				{
-					FragmentHashKeyType HK(algn,header);
+					FragmentHashKeyType HK(algn,header,false /* use mate */,tagid);
 
 					libmaus::bambam::BamAlignment * oalgn;
 			
@@ -595,6 +752,18 @@ namespace libmaus
 				
 				pM.reset();
 			}
+
+			void writeBamBlock(uint8_t const * D, uint64_t const bs)
+			{
+				tmpalgn.copyFrom(D,bs);
+				addAlignment(tmpalgn);								
+			}
+			
+			void writeAlignment(libmaus::bambam::BamAlignment const & A)
+			{
+				tmpalgn.copyFrom(A);
+				addAlignment(tmpalgn);
+			}			
 		};
 	}
 }
