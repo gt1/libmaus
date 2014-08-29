@@ -1,3 +1,23 @@
+libmaus (0.0.163-1) unstable; urgency=low
+
+  * fixing compilation on freebsd
+  * add getErrorRate method in local edit distance result
+  * add shallowMerge method in FastInterval
+
+ -- German Tischler <gt1@sanger.ac.uk>  Thu, 28 Aug 2014 21:25:09 +0100
+
+libmaus (0.0.162-1) unstable; urgency=low
+
+  * fix chunk merging for range restricted bam decoding 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Thu, 21 Aug 2014 14:29:48 +0100
+
+libmaus (0.0.161-1) unstable; urgency=low
+
+  * add PlainOrGzipStream class 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Wed, 20 Aug 2014 11:09:37 +0100
+
 libmaus (0.0.160-1) unstable; urgency=low
 
   * avoid x86 specific asm when not compiling for x86 architecture 
