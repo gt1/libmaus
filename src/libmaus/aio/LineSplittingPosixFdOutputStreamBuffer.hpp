@@ -20,6 +20,8 @@
 #define LIBMAUS_AIO_LINESPLITTINGPOSIXFDOUTPUTBUFFER_HPP
 
 #include <ostream>
+#include <sstream>
+#include <iomanip>
 #include <libmaus/autoarray/AutoArray.hpp>
 #include <libmaus/aio/PosixFdInput.hpp>
 
@@ -53,6 +55,8 @@ namespace libmaus
 			uint64_t linemod;
 			uint64_t linecnt;
 			uint64_t fileno;
+			uint64_t written;
+			std::string openfilename;
 			
 			int fd;
 			int64_t const optblocksize;
@@ -107,6 +111,9 @@ namespace libmaus
 						}
 					}					
 				}
+				
+				openfilename = std::string();
+				written = 0;
 			}
 
 			int doOpen()
@@ -137,6 +144,9 @@ namespace libmaus
 						}
 					}					
 				}
+				
+				written = 0;
+				openfilename = filename;
 				
 				return fd;
 			}
@@ -218,6 +228,7 @@ namespace libmaus
 			  linemod(rlinemod),
 			  linecnt(0),
 			  fileno(0),
+			  written(0),
 			  fd(doOpen()), 
 			  optblocksize((rbuffersize < 0) ? getOptimalIOBlockSize(fd,fn) : rbuffersize),
 			  buffersize(optblocksize), 
@@ -230,7 +241,15 @@ namespace libmaus
 			~LineSplittingPosixFdOutputStreamBuffer()
 			{
 				sync();
+				
+				std::string deletefilename = openfilename;
+				bool const deletefile = ( (written == 0) && fileno == 1 );
+				
 				doClose();
+
+				// delete empty file if no data was written				
+				if ( deletefile )
+					remove(deletefilename.c_str());
 			}
 			
 			int_type overflow(int_type c = traits_type::eof())
