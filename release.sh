@@ -7,6 +7,8 @@ git checkout experimental-debian
 git pull
 git checkout debian
 git pull
+git checkout debian-launchpad
+git pull
 git checkout master
 git pull
 
