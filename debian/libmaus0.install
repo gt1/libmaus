@@ -1,5 +1,5 @@
 #! /usr/bin/dh-exec
 usr/lib/*/libmaus.so.*	usr/lib/${DEB_HOST_MULTIARCH}/
 usr/lib/*/libmauslsf.so.*	usr/lib/${DEB_HOST_MULTIARCH}/
-usr/lib/*/libmaus/0.0.169/libmaus_*.so	usr/lib/${DEB_HOST_MULTIARCH}/libmaus/0.0.169/
+usr/lib/*/libmaus/0.0.171/libmaus_*.so	usr/lib/${DEB_HOST_MULTIARCH}/libmaus/0.0.171/
 usr/share/doc/libmaus/changelog.gz usr/share/doc/libmaus/
