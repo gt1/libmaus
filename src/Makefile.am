@@ -126,7 +126,8 @@ libmaus_la_SOURCES = libmaus/StaticInitialization.cpp \
 	libmaus/network/GnuTLSSocket.cpp \
 	libmaus/bambam/BamStreamingMarkDuplicatesSupport.cpp \
 	libmaus/alignment/FactorMatchInfo.cpp \
-	libmaus/alignment/KmerInfo.cpp
+	libmaus/alignment/KmerInfo.cpp \
+	libmaus/bambam/SamInfoBase.cpp
 
 noinst_HEADERS = libmaus/lz/lz4.h
 
@@ -387,7 +388,9 @@ libmausbambam_include_HEADERS = libmaus/bambam/DecoderBase.hpp libmaus/bambam/Ch
 	libmaus/bambam/BamStreamingMarkDuplicatesSupport.hpp \
 	libmaus/bambam/BamStreamingMarkDuplicates.hpp \
 	libmaus/bambam/BamParallelDecodingControl.hpp \
-	libmaus/bambam/BamAlignmentReg2Bin.hpp
+	libmaus/bambam/BamAlignmentReg2Bin.hpp \
+	libmaus/bambam/SamInfoBase.hpp \
+	libmaus/bambam/SamInfo.hpp
 
 libmausarithmetic_includedir=$(includedir)/libmaus/arithmetic/
 libmausarithmetic_include_HEADERS =\
@@ -663,7 +666,8 @@ libmausutil_include_HEADERS=\
 	libmaus/util/SimpleHashMapHashCompute.hpp \
 	libmaus/util/SimpleHashMapInsDel.hpp \
 	libmaus/util/SimpleHashMapNumberCast.hpp \
-	libmaus/util/SimpleHashSetInsDel.hpp
+	libmaus/util/SimpleHashSetInsDel.hpp \
+	libmaus/util/LineBuffer.hpp
 
 libmausuint_includedir=$(includedir)/libmaus/uint
 libmausuint_include_HEADERS=\
@@ -1254,7 +1258,8 @@ noinst_PROGRAMS = \
 	testparallelbamdecompression \
 	testbytecnt \
 	teststronglyconnectedcomponents \
-	testtopologicalsorting
+	testtopologicalsorting \
+	testlinebuffer
 
 testgunzip_SOURCES = test/testgunzip.cpp
 testgunzip_LDADD = libmaus.la
@@ -1628,3 +1633,8 @@ testgnutls_LDFLAGS = ${AM_LDFLAGS} @GNUTLSLIBS@
 
 testparallelbamdecompression_SOURCES = test/testparallelbamdecompression.cpp
 testparallelbamdecompression_LDADD = libmaus.la
+
+testlinebuffer_SOURCES = test/testlinebuffer.cpp
+testlinebuffer_LDADD = libmaus.la
+testlinebuffer_CPPFLAGS = ${AM_CPPFLAGS}
+testlinebuffer_LDFLAGS = ${AM_LDFLAGS}
