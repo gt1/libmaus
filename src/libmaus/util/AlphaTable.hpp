@@ -16,38 +16,42 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#if ! defined(LIBMAUS_UTIL_ALPHATABLE_HPP)
+#define LIBMAUS_UTIL_ALPHATABLE_HPP
 
-#if ! defined(LIBMAUS_TYPES_TYPES_HPP)
-#define LIBMAUS_TYPES_TYPES_HPP
+#include <cstring>
+#include <libmaus/types/types.hpp>
 
-#if defined(__GNUC__) && __GNUC__ >= 3
-#define expect_true(x)      __builtin_expect (x, 1)
-#define expect_false(x)     __builtin_expect (x, 0)
-#else
-#define expect_true(x) x
-#define expect_false(x) x
-#endif
-
-#include <libmaus/LibMausConfig.hpp>
-#include <cstdlib>
-
-#if defined(LIBMAUS_HAVE_CSTDINT) || defined(_MSC_VER)
-#include <cstdint>
-#elif defined(LIBMAUS_HAVE_STDINT_H)
-#include <stdint.h>
-#elif defined(LIBMAUS_HAVE_SYS_TYPES_H)
-#include <sys/types.h>
-#endif
-
-#if defined(__APPLE__)
-#include <stdint.h>
-#endif
-
-#if defined(LIBMAUS_HAVE_UNSIGNED_INT128)
 namespace libmaus
 {
-	typedef unsigned __int128 uint128_t;
+	namespace util
+	{
+		/**
+		 * class containing a digit table; the contained array A
+		 * is such that A[i] == true iff isalpha(i)== true for
+		 * 0 <= i < 256
+		 **/
+		struct AlphaTable
+		{
+			//! digit table
+			char A[256];
+			
+			/**
+			 * constructor
+			 */
+			AlphaTable();
+			
+			/**
+			 * check whether i is a digit
+			 *
+			 * @param i character number such that 0 <= i < 256
+			 * @return true iff i designates a digit
+			 **/
+			bool operator[](uint8_t const i) const
+			{
+				return A[i];
+			}
+		};
+	}
 }
-#endif
-
 #endif
