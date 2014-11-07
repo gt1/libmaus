@@ -16,57 +16,28 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <libmaus/util/md5.hpp>
+#include <libmaus/util/GetFileSize.hpp>
 #include <libmaus/util/ArgInfo.hpp>
-#include <libmaus/util/LineBuffer.hpp>
-#include <iostream>
 
 int main(int argc, char * argv[])
 {
 	try
 	{
 		libmaus::util::ArgInfo const arginfo(argc,argv);
-		char const * a = 0;
-		char const * e = 0;
-		
-		if ( arginfo.restargs.size() )
+	
+		for ( uint64_t i = 0; i < arginfo.restargs.size(); ++i )
 		{
-			for ( uint64_t i = 0; i < arginfo.restargs.size(); ++i )
-			{
-				std::string const fn = arginfo.restargs.at(i);
-				libmaus::aio::CheckedInputStream CIS1(fn);
-				libmaus::aio::CheckedInputStream CIS2(fn);
-				libmaus::util::LineBuffer LB(CIS1);
-				
-				while ( LB.getline(&a,&e) )
-				{
-					std::string const line(a,e);
-					std::string refline;
-					std::getline(CIS2,refline);
-					
-					if ( line != refline )
-					{
-						std::cerr << line << "\n!=\n" << refline << "\n";
-						return EXIT_FAILURE;
-					}
-				}
-				
-				std::cerr << "check for " << fn << " ok" << std::endl;
-			}
-		}
-		else
-		{
-			libmaus::util::LineBuffer LB(std::cin,64*1024);
-			
-			while ( LB.getline(&a,&e) )
-			{
-				std::cout.write(a,e-a);
-				std::cout.put('\n');
-			}
+			::libmaus::autoarray::AutoArray<uint8_t> const A = libmaus::util::GetFileSize::readFile<uint8_t>(arginfo.restargs.at(i));
+			std::string const input(A.begin(),A.end());
+			std::string output;
+			libmaus::util::MD5::md5(input,output);
+			std::cout << arginfo.restargs[i] << "\t" << output << "\t" << std::hex << libmaus::util::MD5::md5(A.begin(), A.size()) << std::dec << std::endl;
 		}
 	}
 	catch(std::exception const & ex)
 	{
 		std::cerr << ex.what() << std::endl;
-		return EXIT_FAILURE;	
+		return EXIT_FAILURE;
 	}
 }
