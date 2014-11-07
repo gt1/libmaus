@@ -1,3 +1,9 @@
+libmaus (0.0.172-1) unstable; urgency=low
+
+  * New upstream version 0.0.172
+
+ -- German Tischler <gt1@sanger.ac.uk>  Thu, 06 Nov 2014 22:18:11 +0000
+
 libmaus (0.0.171-1) unstable; urgency=low
 
   * New upstream version 0.0.171
