@@ -16,38 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <libmaus/bambam/SamZPrintableTable.hpp>
 
-#if ! defined(LIBMAUS_TYPES_TYPES_HPP)
-#define LIBMAUS_TYPES_TYPES_HPP
-
-#if defined(__GNUC__) && __GNUC__ >= 3
-#define expect_true(x)      __builtin_expect (x, 1)
-#define expect_false(x)     __builtin_expect (x, 0)
-#else
-#define expect_true(x) x
-#define expect_false(x) x
-#endif
-
-#include <libmaus/LibMausConfig.hpp>
-#include <cstdlib>
-
-#if defined(LIBMAUS_HAVE_CSTDINT) || defined(_MSC_VER)
-#include <cstdint>
-#elif defined(LIBMAUS_HAVE_STDINT_H)
-#include <stdint.h>
-#elif defined(LIBMAUS_HAVE_SYS_TYPES_H)
-#include <sys/types.h>
-#endif
-
-#if defined(__APPLE__)
-#include <stdint.h>
-#endif
-
-#if defined(LIBMAUS_HAVE_UNSIGNED_INT128)
-namespace libmaus
+libmaus::bambam::SamZPrintableTable::SamZPrintableTable()
 {
-	typedef unsigned __int128 uint128_t;
+	memset(&A[0],0,sizeof(A));
+	A[static_cast<int>(' ')] = 1;
+	
+	for ( int i = '!'; i <= '~'; ++i )
+		A[i] = 1;
 }
-#endif
-
-#endif

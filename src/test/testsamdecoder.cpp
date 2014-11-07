@@ -16,53 +16,41 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+// #include <iostream>
+#include <libmaus/aio/PosixFdInputStream.hpp>
+#include <libmaus/bambam/BamBlockWriterBaseFactory.hpp>
+#include <libmaus/bambam/SamDecoder.hpp>
 #include <libmaus/util/ArgInfo.hpp>
-#include <libmaus/util/LineBuffer.hpp>
-#include <iostream>
 
 int main(int argc, char * argv[])
 {
 	try
 	{
 		libmaus::util::ArgInfo const arginfo(argc,argv);
-		char const * a = 0;
-		char const * e = 0;
+		bool const verbose = arginfo.getValue<int>("verbose",0);
+		libmaus::aio::PosixFdInputStream PFIS(STDIN_FILENO);
+		libmaus::bambam::SamDecoder SD(PFIS);
+		libmaus::bambam::BamAlignment const & algn = SD.getAlignment();
+		libmaus::bambam::BamHeader const & header = SD.getHeader();		
+		::libmaus::bambam::BamFormatAuxiliary aux;
+
+		libmaus::bambam::BamBlockWriterBase::unique_ptr_type Pwriter(libmaus::bambam::BamBlockWriterBaseFactory::construct(header,arginfo));
+		libmaus::bambam::BamBlockWriterBase & writer = *Pwriter;
 		
-		if ( arginfo.restargs.size() )
+		if ( verbose )
+			std::cerr << header.text;
+		
+		while ( SD.readAlignment() )
 		{
-			for ( uint64_t i = 0; i < arginfo.restargs.size(); ++i )
+			algn.checkAlignment(header);
+			writer.writeAlignment(algn);
+
+			if ( verbose )
 			{
-				std::string const fn = arginfo.restargs.at(i);
-				libmaus::aio::CheckedInputStream CIS1(fn);
-				libmaus::aio::CheckedInputStream CIS2(fn);
-				libmaus::util::LineBuffer LB(CIS1);
-				
-				while ( LB.getline(&a,&e) )
-				{
-					std::string const line(a,e);
-					std::string refline;
-					std::getline(CIS2,refline);
-					
-					if ( line != refline )
-					{
-						std::cerr << line << "\n!=\n" << refline << "\n";
-						return EXIT_FAILURE;
-					}
-				}
-				
-				std::cerr << "check for " << fn << " ok" << std::endl;
+				algn.formatAlignment(std::cerr,header,aux);
+				std::cerr.put('\n');
 			}
-		}
-		else
-		{
-			libmaus::util::LineBuffer LB(std::cin,64*1024);
-			
-			while ( LB.getline(&a,&e) )
-			{
-				std::cout.write(a,e-a);
-				std::cout.put('\n');
-			}
-		}
+		}	
 	}
 	catch(std::exception const & ex)
 	{
