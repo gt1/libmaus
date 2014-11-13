@@ -16,15 +16,26 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#if ! defined(LIBMAUS_DIGEST_DIGESTS_HPP)
-#define LIBMAUS_DIGEST_DIGESTS_HPP
+#include <libmaus/util/ArgInfo.hpp>
+#include <libmaus/network/SingleFileServer.hpp>
 
-#include <libmaus/util/md5.hpp>
-#include <libmaus/digest/CRC32.hpp>
-#include <libmaus/digest/Null.hpp>
-#include <libmaus/digest/SHA1.hpp>
-#include <libmaus/digest/SHA2_224.hpp>
-#include <libmaus/digest/SHA2_256.hpp>
-#include <libmaus/digest/SHA2_384.hpp>
-#include <libmaus/digest/SHA2_512.hpp>
-#endif
+int main(int argc, char * argv[])
+{
+	try
+	{
+		libmaus::util::ArgInfo const arginfo(argc,argv);
+		std::string const fn = arginfo.restargs.at(0);
+		int const port = arginfo.getValue<int>("port",4444);
+		uint64_t const backlog = arginfo.getValue<int>("backlog",128);
+		std::string const hostname = arginfo.getUnparsedValue("hostname","localhost");
+
+		libmaus::network::SingleFileServer server(fn,hostname,port,backlog);
+		server.exec();
+		std::cout << hostname << '\t' << server.port << '\t' << server.getPid() << std::endl;
+	}
+	catch(std::exception const & ex)
+	{
+		std::cerr << ex.what() << std::endl;
+		return EXIT_FAILURE;
+	}
+}
