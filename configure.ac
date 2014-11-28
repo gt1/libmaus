@@ -1,5 +1,5 @@
-AC_INIT(libmaus,0.0.182,[gt1@sanger.ac.uk],[libmaus],[http://www.sanger.ac.uk])
-LIBRARY_VERSION=0:182:0
+AC_INIT(libmaus,0.0.183,[gt1@sanger.ac.uk],[libmaus],[http://www.sanger.ac.uk])
+LIBRARY_VERSION=0:183:0
 AC_MSG_NOTICE([Configuring for source in directory ${srcdir}])
 AC_CANONICAL_SYSTEM
 AC_CANONICAL_HOST
@@ -2141,7 +2141,7 @@ if test "${with_nettle}" != "no" ; then
 		fi
 	fi
 
-	PKG_CHECK_MODULES([nettle],[nettle >= 2.7.1],[nettlepkg=yes],[nettlepkg=no])
+	PKG_CHECK_MODULES([nettle],[nettle >= 2.4],[nettlepkg=yes],[nettlepkg=no])
 
 	if test ! -z "${with_nettle}" ; then
 		if test ! -z "${PKGCONFIGPATHSAVE}" ; then
@@ -2158,7 +2158,7 @@ if test "${with_nettle}" != "no" ; then
 		CPPFLAGS="${CPPFLAGS} ${nettle_CFLAGS}"
 		
 		AC_MSG_CHECKING([whether we can compile a nettle program])
-		AC_TRY_LINK([#include <nettle/sha1.h>
+		AC_TRY_LINK([#include <nettle/sha.h>
 	],[;],[nettle=yes],[nettle=no])
 		AC_MSG_RESULT([${nettle}])
 		LIBS="${LIBSSAVE}"
