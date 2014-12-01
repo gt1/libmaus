@@ -4,4 +4,6 @@ usr/lib/*/libmaus.so	usr/lib/${DEB_HOST_MULTIARCH}/
 usr/lib/*/libmauslsf.so	usr/lib/${DEB_HOST_MULTIARCH}/
 usr/lib/*/libmaus.a	usr/lib/${DEB_HOST_MULTIARCH}/
 usr/lib/*/libmauslsf.a	usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*/libmausdigests.a	usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*/libmausdigests_sse4.a	usr/lib/${DEB_HOST_MULTIARCH}/
 usr/lib/*/pkgconfig/*.pc	usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
