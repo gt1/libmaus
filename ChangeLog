@@ -1,3 +1,22 @@
+libmaus (0.0.194-1) unstable; urgency=low
+
+  * disable stack trace translation in ConstantStringHash when we cannot find a perfect hash 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Tue, 10 Feb 2015 16:12:30 +0000
+
+libmaus (0.0.193-1) unstable; urgency=low
+
+  * add BamCatHeader constructor method with ArgInfo object 
+
+ -- German Tischler <gt1@sanger.ac.uk>  Mon, 09 Feb 2015 09:30:08 +0000
+
+libmaus (0.0.192-1) unstable; urgency=low
+
+  * extend API by allowing to pass options via ArgInfo object when constructing BamMergeCoordinate and BamMergeQueryName
+  * add functionality for reading CRAM indexes via callbacks
+
+ -- German Tischler <gt1@sanger.ac.uk>  Fri, 30 Jan 2015 15:54:12 +0000
+
 libmaus (0.0.191-1) unstable; urgency=low
 
   * add decompress option for cram input callback setup 
